@@ -26,12 +26,9 @@ _logger_console_log_output: str = os.getenv('PYLOGZ_CONSOLE_LOG_OUTPUT', 'stdout
 _logger_log_line_template: str = os.getenv('PYLOGZ_LOGLINE_TEMPLATE', "%(asctime)s [<cls_name>] %(color_on)s%(module)s.%(funcName)-20s%(color_off)s %(message)-2s")
 _logger_logfile_log_level: str = os.getenv('PYLOGZ_LOGFILE_LOG_LEVEL', 'debug')
 _logger_logfile_file: str = os.getenv('PYLOGZ_LOGFILE_FILE', None)
-_logger_logfile_log_color: bool(os.getenv('PYLOGZ_LOGFILE_COLOR_ENABLED', 'false').lower() in {'true', 'yes', '1'})
-_logger_propagate: bool(os.getenv('PYLOGZ_PROPAGATE', 'true').lower() in {'true', 'yes', '1'})
-_logger_clear_handlers: bool(os.getenv('PYLOGZ_CLEAR_HANDLERS', 'false').lower() in {'true', 'yes', '1'})
-
-
-
+_logger_logfile_log_color: bool = bool(os.getenv('PYLOGZ_LOGFILE_COLOR_ENABLED', 'false').lower() in {'true', 'yes', '1'})
+_logger_propagate: bool = bool(os.getenv('PYLOGZ_PROPAGATE', 'true').lower() in {'true', 'yes', '1'})
+_logger_clear_handlers: bool = bool(os.getenv('PYLOGZ_CLEAR_HANDLERS', 'false').lower() in {'true', 'yes', '1'})
 
 if _logger_multi: _logger_handler: Dict[str, logging.Logger] = {}
 
@@ -122,7 +119,7 @@ def get_logger(name: str = _logger_cls_name, log_level = _logger_default_logleve
             _logger_name = name
         return _logger_handler
 
-# 
+
 def get_cls_logger(name: str, log_level = _logger_default_loglevel, *args, **kwargs):
     def _get_logger(clsname = name, clslog_level = log_level, clsargs = args, clskwargs = kwargs):
         return get_logger(name = clsname, log_level = clslog_level, *clsargs, **clskwargs)
