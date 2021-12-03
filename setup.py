@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 if sys.version_info.major != 3:
     raise RuntimeError("This package requires Python 3+")
 
-version = '0.0.2'
+version = '0.0.3'
 pkg_name = 'pylogz'
 gitrepo = 'trisongz/pylogz'
 root = Path(__file__).parent
@@ -14,7 +14,7 @@ root = Path(__file__).parent
 requirements = []
 
 args = {
-    'packages': find_packages(include = ['pylogz', 'pylogz.*']),
+    'packages': find_packages(include = ['logz', 'logz.*']),
     'install_requires': requirements,
     'long_description': root.joinpath('README.md').read_text(encoding='utf-8'),
     'entry_points': {}
