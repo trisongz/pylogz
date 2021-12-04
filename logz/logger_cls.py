@@ -2,7 +2,8 @@ import os
 import sys
 import logging
 import threading
-from typing import Dict
+from typing import Dict, Any, Union, List
+from types import MethodType
 from .utils import convert_log
 
 _notebook = sys.argv[-1].endswith('json')
@@ -30,8 +31,17 @@ _logger_logfile_log_color: bool = bool(os.getenv('PYLOGZ_LOGFILE_COLOR_ENABLED',
 _logger_propagate: bool = bool(os.getenv('PYLOGZ_PROPAGATE', 'true').lower() in {'true', 'yes', '1'})
 _logger_clear_handlers: bool = bool(os.getenv('PYLOGZ_CLEAR_HANDLERS', 'false').lower() in {'true', 'yes', '1'})
 
-if _logger_multi: _logger_handler: Dict[str, logging.Logger] = {}
+# Hacky way of making it callable.
+def _callable(self, msgs: Union[List[Any], str], split_newline: bool = False, log_level = _logger_default_loglevel, *args, **kwargs):
+    if not isinstance(msgs, list): msgs = [msgs]
+    log_msgs = convert_log(*msgs, split_newline = split_newline)
+    mode = _logging_levels.get(log_level, 'info')
+    for msg in log_msgs:
+        if msg: self._log(mode, msg, args, **kwargs)
 
+logging.Logger.__call__ = _callable
+
+if _logger_multi: _logger_handler: Dict[str, logging.Logger] = {}
 
 class LogFormatter(logging.Formatter):
     COLOR_CODES = {
@@ -78,13 +88,11 @@ def setup_logging(config):
             clr_logger.setLevel(logging.ERROR)
 
     logger.propagate = config.get('propagate', False)
+
     def _logger_callable(self, *msgs, split_newline: bool = False, log_level = default_log_level, **kwargs):
-        log_msgs = convert_log(*msgs, split_newline = split_newline)
-        _logger = getattr(self, log_level, self.info)
-        for msg in log_msgs:
-            if msg: _logger(msg, **kwargs)
-    
-    setattr(logger, '__call__', _logger_callable)
+        return self(*msgs, split_newline = split_newline, log_level = log_level, **kwargs)
+
+    setattr(logger, "__call__", MethodType(_logger_callable, logger))
     return logger
 
 
